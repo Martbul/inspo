@@ -1,9 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
+
+	"github.com/martbul/server"
+	"go.uber.org/zap/zapcore"
 )
 
 const cookieFliemane = ".cookie"
@@ -20,5 +25,18 @@ func main() {
 
 	http.DefaultClient.Timeout = 1500 * time.Millisecond
 
-	tmpLogger := serv
+	tmpLogger := server.NewJSONLogger(os.Stdout, zapcore.InfoLevel, server.JSONFormat)
+
+	ctx, ctxCancelFn := context.WithCancel(context.Background())
+
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "version":
+			fmt.Println(semver)
+			return
+
+		case "migrate":
+			config := server.ParseArgs(tmpLogger, os.Args[2:])
+		}
+	}
 }
