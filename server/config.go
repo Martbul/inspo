@@ -3,11 +3,19 @@ package server
 import (
 	"crypto/tls"
 	"flag"
+	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
+	"sort"
+	"strings"
 
+	"github.com/martbul/flags"
+	"github.com/martbul/inspo-common/runtime"
 	"go.uber.org/zap"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"gopkg.in/yaml.v3"
 )
 
 type config struct {
@@ -65,7 +73,121 @@ type Config interface {
 
 func ParseArgs(logger *zap.Logger, args []string) Config {
 	configFilePath := NewConfig(logger)
-	configFileFlagSet := flag.NewFlagSet("nakama", flag.ExitOnError)
+	configFileFlagSet := flag.NewFlagSet("inspo", flag.ExitOnError)
+
+	//INFO: used ti bind config values from yaml with flags
+	configFileFlagMarker := flags.NewFlagMakerFlagSet(&flags.FlagMakingOptions{
+		UseLowerCase: true,
+		Flatten:      false,
+		TagName:      "yaml",
+		TagUsage:     "usage",
+	}, configFileFlagSet)
+
+	if _, err := configFileFlagMarker.ParseArgs(configFilePath, args[1:]); err != nil {
+
+		logger.Fatal("Could not parse command line arguments", zap.Error(err))
+	}
+
+	// Parse config file if path is set.
+	mainConfig := NewConfig(logger)
+	runtimeEnvironment := mainConfig.GetRuntime().Environment
+
+	for _, cfg := range configFilePath.Config {
+		data, err := os.ReadFile(cfg)
+
+		if err != nil {
+			logger.Fatal("Could not read config file", zap.String("path", cfg), zap.Error(err))
+		}
+
+		err = yaml.Unmarshal(data, mainConfig)
+		if err != nil {
+			logger.Fatal("Could not parse config file", zap.String("path", cfg), zap.Error(err))
+		}
+
+		// Convert and preserve the runtime environment key-value pairs.
+		runtimeEnvironment = convertRuntimeEnv(logger, runtimeEnvironment, mainConfig.GetRuntime().Env)
+		logger.Info("Successfully loaded config file", zap.String("path", cfg))
+	}
+	// Preserve the config file path arguments.
+	mainConfig.Config = configFilePath.Config
+
+	// Override config with those passed from command-line.
+	mainFlagSet := flag.NewFlagSet("nakama", flag.ExitOnError)
+	mainFlagMaker := flags.NewFlagMakerFlagSet(&flags.FlagMakingOptions{
+		UseLowerCase: true,
+		Flatten:      false,
+		TagName:      "yaml",
+		TagUsage:     "usage",
+	}, mainFlagSet)
+
+	if _, err := mainFlagMaker.ParseArgs(mainConfig, args[1:]); err != nil {
+		logger.Fatal("Could not parse command line arguments", zap.Error(err))
+	}
+
+	mainConfig.GetRuntime().Environment = convertRuntimeEnv(logger, runtimeEnvironment, mainConfig.GetRuntime().Env)
+	mainConfig.GetRuntime().Env = make([]string, 0, len(mainConfig.GetRuntime().Environment))
+
+	for k, v := range mainConfig.GetRuntime().Environment {
+
+		mainConfig.GetRuntime().Env = append(mainConfig.GetRuntime().Env, fmt.Sprintf("%v=%v", k, v))
+	}
+
+	sort.Strings(mainConfig.GetRuntime().Env)
+
+	if mainConfig.GetGoogleAuth() != nil && mainConfig.GetGoogleAuth().CredentialsJSON != "" {
+
+		cnf, err := google.ConfigFromJSON([]byte(mainConfig.GetGoogleAuth().CredentialsJSON))
+		if err != nil {
+			logger.Fatal("Failed to parse Google's credentials JSON", zap.Error(err))
+		}
+
+		mainConfig.GetGoogleAuth().OAuthConfig = cnf
+	}
+	return mainConfig
+}
+
+func convertRuntimeEnv(logger *zap.Logger, existingEnv map[string]string, mergeEnv []string) map[string]string {
+	envMap := make(map[string]string, len(existingEnv))
+	for k, v := range existingEnv {
+		envMap[k] = v
+	}
+
+	for _, e := range mergeEnv {
+		if !strings.Contains(e, "=") {
+			logger.Fatal("Invalid runtime environment value.", zap.String("value", e))
+		}
+
+		kv := strings.SplitN(e, "=", 2) // the value can contain the character "=" many times over.
+		if len(kv) == 1 {
+			envMap[kv[0]] = ""
+		} else if len(kv) == 2 {
+			envMap[kv[0]] = kv[1]
+		}
+	}
+	return envMap
+}
+
+func ValideateConfigDatabase(logger *zap.Logger, c Config) {
+	if len(c.GetDatabase().Addresses) < 1 {
+
+		logger.Fatal("At least one database address must be specified", zap.Strings("database.address", c.GetDatabase().Addresses))
+	}
+
+	for _, address := range c.GetDatabase().Addresses {
+
+		rawURL := fmt.Sprintf("postgresql://%s", address)
+
+		if _, err := url.Parse(rawURL); err != nil {
+
+			logger.Fatal("Bad database connection URL", zap.String("database.address", address), zap.Error(err))
+
+		}
+	}
+
+	if c.GetDatabase().DnsScanIntervalSec < 1 {
+
+		logger.Fatal("Database DNS scan interval seconds must be > 0", zap.Int("database.dns_scan_interval_sec", c.GetDatabase().DnsScanIntervalSec))
+	}
 }
 
 func NewConfig(logger *zap.Logger) *config {
@@ -640,50 +762,6 @@ type SocialConfigApple struct {
 func (s SocialConfigApple) GetBundleId() string {
 	return s.BundleId
 }
-
-func (cfg *SocialConfig) GetSteam() runtime.SocialConfigSteam {
-	return cfg.Steam
-}
-
-func (cfg *SocialConfig) GetFacebookInstantGame() runtime.SocialConfigFacebookInstantGame {
-	return cfg.FacebookInstantGame
-}
-
-func (cfg *SocialConfig) GetFacebookLimitedLogin() runtime.SocialConfigFacebookLimitedLogin {
-	return cfg.FacebookLimitedLogin
-}
-
-func (cfg *SocialConfig) GetApple() runtime.SocialConfigApple {
-	return cfg.Apple
-}
-
-func (cfg *SocialConfig) Clone() *SocialConfig {
-	if cfg == nil {
-		return nil
-	}
-
-	cfgCopy := *cfg
-
-	if cfg.Steam != nil {
-		c := *(cfg.Steam)
-		cfgCopy.Steam = &c
-	}
-	if cfg.FacebookInstantGame != nil {
-		c := *(cfg.FacebookInstantGame)
-		cfgCopy.FacebookInstantGame = &c
-	}
-	if cfg.FacebookLimitedLogin != nil {
-		c := *(cfg.FacebookLimitedLogin)
-		cfgCopy.FacebookLimitedLogin = &c
-	}
-	if cfg.Apple != nil {
-		c := *(cfg.Apple)
-		cfgCopy.Apple = &c
-	}
-
-	return &cfgCopy
-}
-
 func NewMatchConfig() *MatchConfig {
 	return &MatchConfig{
 		InputQueueSize:        128,
@@ -1021,22 +1099,6 @@ func NewIAPConfig() *IAPConfig {
 }
 
 var _ runtime.IAPAppleConfig = &IAPAppleConfig{}
-
-func (cfg *IAPConfig) GetApple() runtime.IAPAppleConfig {
-	return cfg.Apple
-}
-
-func (cfg *IAPConfig) GetGoogle() runtime.IAPGoogleConfig {
-	return cfg.Google
-}
-
-func (cfg *IAPConfig) GetHuawei() runtime.IAPHuaweiConfig {
-	return cfg.Huawei
-}
-
-func (cfg *IAPConfig) GetFacebookInstant() runtime.IAPFacebookInstantConfig {
-	return cfg.FacebookInstant
-}
 
 var _ runtime.IAPAppleConfig = &IAPAppleConfig{}
 

@@ -7,7 +7,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/jackc/pgx/v5/stdlib" // Blank import to register SQL driver
 	"github.com/martbul/server"
+	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -37,6 +40,26 @@ func main() {
 
 		case "migrate":
 			config := server.ParseArgs(tmpLogger, os.Args[2:])
+			server.ValideateConfigDatabase(tmpLogger, config)
+			db := server.DbConnect(ctx, tmpLogger, config, true)
+			defer db.Close()
+
+			conn, err := db.Conn(ctx)
+			if err != nil {
+				tmpLogger.Fatal("Failed to acquire db conn for migration", zap.Error(err))
+			}
+
+			if err = conn.Raw(func(driverConn any) error {
+				pgxConn := driverConn.(*stdlib.Conn).Conn()
+				migrate.RunCmd(ctx, tmpLogger, pgxConn, os.Args[2], config.GetLimit(), config.GetLogger().Format)
+
+				return nil
+			}); err != nil {
+				conn.Close()
+				tmpLogger.Fatal("Failed to acquire pgx conn for migration", zap.Error(err))
+			}
+			conn.Close()
+			return
 		}
 	}
 }
