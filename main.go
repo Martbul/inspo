@@ -2,13 +2,16 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/jackc/pgx/v5/stdlib" // Blank import to register SQL driver
+	"github.com/martbul/migrate"
 	"github.com/martbul/server"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -59,6 +62,25 @@ func main() {
 				tmpLogger.Fatal("Failed to acquire pgx conn for migration", zap.Error(err))
 			}
 			conn.Close()
+			return
+
+		case "check":
+			// Parse any command line args to look up runtime path.
+			config := server.NewConfig(tmpLogger)
+			var runtimePath string
+			flags := flag.NewFlagSet("check", flag.ExitOnError)
+			flags.StringVar(&runtimePath, "runtime.path", filepath.Join(config.GetDataDir(), "modules"), "Path for the server to scan for lua and Go library files")
+			if err := flags.Parse(os.Args[2:]); err != nil {
+
+				tmpLogger.Fatal("Could not parse check flags.")
+			}
+
+			config.GetRuntime().Path = runtimePath
+
+			if err := server.CheckRuntime(tmpLogger, config, version); err != nil {
+				// Errors are already logged in the function above.
+				os.Exit(1)
+			}
 			return
 		}
 	}
