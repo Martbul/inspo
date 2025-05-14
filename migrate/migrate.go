@@ -3,6 +3,7 @@ package migrate
 import (
 	"context"
 	"embed"
+	"math"
 	"os"
 	"strings"
 	"time"
@@ -33,6 +34,36 @@ type migrationService struct {
 	loggerFormat server.LoggingFormat
 	migrations   *sqlmigrate.EmbedFileSystemMigrationSource
 	execFn       func(ctx context.Context, logger *zap.Logger, db *pgx.Conn)
+}
+
+func Check(ctx context.Context, logger *zap.Logger, db *pgx.Conn) {
+	sqlmigrate.SetTable(migrationTable)
+	sqlmigrate.SetIgnoreUnknown(true)
+
+	ms := &sqlmigrate.EmbedFileSystemMigrationSource{
+		FileSystem: sqlMigrateFS,
+		Root:       "sql",
+	}
+
+	migrations, err := ms.FindMigrations()
+	if err != nil {
+
+		logger.Fatal("Could not find migrations", zap.Error(err))
+	}
+
+	records, err := sqlmigrate.GetMigrationRecords(ctx, db)
+	if err != nil {
+		logger.Fatal("Could not get migration records, run `inspo migrate up`", zap.Error(err))
+	}
+
+	diff := len(migrations) - len(records)
+	if diff > 0 {
+		logger.Fatal("DB schema outdated, run `nakama migrate up`", zap.Int("migrations", diff))
+	}
+	if diff < 0 {
+		logger.Warn("DB schema newer, update inspo", zap.Int64("migrations", int64(math.Abs(float64(diff)))))
+	}
+	db.Close(ctx)
 }
 
 func RunCmd(ctx context.Context, tmpLogger *zap.Logger, db *pgx.Conn, cmd string, limit int, loggerFormat string) {
