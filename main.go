@@ -14,6 +14,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib" // Blank import to register SQL driver
 	"github.com/martbul/migrate"
 	"github.com/martbul/server"
+	"github.com/martbul/social"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -130,19 +131,20 @@ func main() {
 		logger.Fatal("Failed to acquire db conn for migration check", zap.Error(err))
 	}
 
-
 	if err = conn.Raw(func(driverConn any) error {
 		pgxConn := driverConn.(*stdlib.Conn).Conn()
 		migrate.Check(ctx, startupLogger, pgxConn)
 		return nil
-	}); err != nil{
+	}); err != nil {
 		conn.Close()
 
 		logger.Fatal("Failed to acquire pgx conn for migration check", zap.Error(err))
 	}
 	conn.Close()
 
-
 	// Access to social provider integrations.
-	socialClient := social.
+	socialClient := social.NewClient(logger, 5*time.Second, config.GetGoogleAuth().OAuthConfig)
+
+	// Start up server components
+	metrics := server.NewLoca
 }
