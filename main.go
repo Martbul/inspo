@@ -167,4 +167,13 @@ func main() {
 	tracker := server.StartLocalTracker(logger, config, sessionRegistry, statusRegistry, metrics, jsonpbMarshaler)
 	router := server.NewLocalMessageRouter(sessionRegistry, tracker, jsonpbMarshaler)
 	leaderboardCache := server.NewLocalLeaderboardCache(ctx, logger, startupLogger, db)
+	leaderboardRankCache := server.NewLocalLeaderboardRankCache(ctx, startupLogger, db, config.GetLeaderboard(), leaderboardCache)
+	leaderboardScheduler := server.NewLocalLeaderboardScheduler(logger, db, config, leaderboardCache, leaderboardRankCache)
+	googleRefundScheduler := server.NewGoogleRefundScheduler(logger, db, config)
+	matchRegistry := server.NewLocalMatchRegistry(logger, startupLogger, config, sessionRegistry, tracker, router, metrics, config.GetName())
+	tracker.SetMatchJoinListener(matchRegistry.Join)
+	tracker.SetMatchLeaveListener(matchRegistry.Leave)
+	streamManager := server.NewLocalStreamManager(config, sessionRegistry, tracker)
+	fmCallbackHandler := server.NewLocalFmCallbackHandler(config)
+
 }

@@ -7,14 +7,15 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"errors"
-	"github.com/heroiclabs/nakama-common/runtime"
 	"sort"
 	"strings"
 	"time"
 
+	"github.com/heroiclabs/nakama-common/runtime"
+	"github.com/martbul/internal/cronexpr"
+
 	"github.com/gofrs/uuid/v5"
 	"github.com/heroiclabs/nakama-common/api"
-	"github.com/heroiclabs/nakama/v3/internal/cronexpr"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
