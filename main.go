@@ -146,5 +146,9 @@ func main() {
 	socialClient := social.NewClient(logger, 5*time.Second, config.GetGoogleAuth().OAuthConfig)
 
 	// Start up server components
-	metrics := server.NewLoca
+	metrics := server.NewLocalMetrics(logger, startupLogger, db, config)
+	sessionRegistry := server.NewLocalSessionRegistry(metrics)
+	sessionCache := server.NewLocalSessionCache(config.GetSession().TokenExpirySec, config.GetSession().RefreshTokenExpirySec)
+	consoleSessionCache := server.NewLocalSessionCache(config.GetConsole().TokenExpirySec, 0)
+	loginAttemptCache := server.NewLocalLoginAttemptCache()
 }
