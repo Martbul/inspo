@@ -176,4 +176,6 @@ func main() {
 	streamManager := server.NewLocalStreamManager(config, sessionRegistry, tracker)
 	fmCallbackHandler := server.NewLocalFmCallbackHandler(config)
 
+	storageIndex, err := server.NewLocalStorageIndex(logger, db, config.GetStorage(), metrics)
+
 }
