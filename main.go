@@ -17,6 +17,7 @@ import (
 	"github.com/martbul/social"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 const cookieFliemane = ".cookie"
@@ -24,6 +25,17 @@ const cookieFliemane = ".cookie"
 var (
 	version  string = "1.0.0"
 	commitID string = "dev"
+
+	// Shared utility components.
+	jsonpbMarshaler = &protojson.MarshalOptions{
+		UseEnumNumbers:  true,
+		EmitUnpopulated: false,
+		Indent:          "",
+		UseProtoNames:   true,
+	}
+	jsonpbUnmarshaler = &protojson.UnmarshalOptions{
+		DiscardUnknown: false,
+	}
 )
 
 func main() {
@@ -151,4 +163,8 @@ func main() {
 	sessionCache := server.NewLocalSessionCache(config.GetSession().TokenExpirySec, config.GetSession().RefreshTokenExpirySec)
 	consoleSessionCache := server.NewLocalSessionCache(config.GetConsole().TokenExpirySec, 0)
 	loginAttemptCache := server.NewLocalLoginAttemptCache()
+	statusRegistry := server.NewLocalStatusRegistry(logger, config, sessionRegistry, jsonpbMarshaler)
+	tracker := server.StartLocalTracker(logger, config, sessionRegistry, statusRegistry, metrics, jsonpbMarshaler)
+	router := server.NewLocalMessageRouter(sessionRegistry, tracker, jsonpbMarshaler)
+	leaderboardCache := server.NewLocalLeaderboardCache(ctx, logger, startupLogger, db)
 }

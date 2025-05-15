@@ -43,7 +43,7 @@ type Session interface {
 
 	Close(msg string, reason runtime.PresenceReason, envelopes ...*rtapi.Envelope)
 	CloseLock()
-	closeUnlock()
+	CloseUnlock()
 }
 
 type SessionRegistry interface {

@@ -33,6 +33,20 @@ type LoginAttemptCache interface {
 	Reset(account string)
 }
 
+func (ls *lockoutStatus) trim(now time.Time, retentionPeriod time.Duration) bool {
+	if ls.lockedUntil.Before(now) {
+		ls.lockedUntil = time.Time{}
+	}
+	for i := len(ls.attempts) - 1; i >= 0; i-- {
+		if now.Sub(ls.attempts[i]) >= retentionPeriod {
+			ls.attempts = ls.attempts[i+1:]
+			break
+		}
+	}
+
+	return ls.lockedUntil.IsZero() && len(ls.attempts) == 0
+}
+
 type lockoutStatus struct {
 	lockedUntil time.Time
 	attempts    []time.Time
