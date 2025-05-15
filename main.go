@@ -178,4 +178,16 @@ func main() {
 
 	storageIndex, err := server.NewLocalStorageIndex(logger, db, config.GetStorage(), metrics)
 
+	if err != nil {
+		logger.Fatal("Failed to initialize storage index", zap.Error(err))
+	}
+	runtime, runtimeInfo, err := server.NewRuntime(ctx, logger, startupLogger, db, jsonpbMarshaler, jsonpbUnmarshaler, config, version, socialClient, leaderboardCache, leaderboardRankCache, leaderboardScheduler, sessionRegistry, sessionCache, statusRegistry, matchRegistry, tracker, metrics, streamManager, router, storageIndex, fmCallbackHandler)
+	if err != nil {
+		startupLogger.Fatal("Failed initializing runtime modules", zap.Error(err))
+	}
+	matchmaker := server.NewLocalMatchmaker(logger, startupLogger, config, router, metrics, runtime)
+	partyRegistry := server.NewLocalPartyRegistry(logger, config, matchmaker, tracker, streamManager, router, config.GetName())
+	tracker.SetPartyJoinListener(partyRegistry.Join)
+	tracker.SetPartyLeaveListener(partyRegistry.Leave)
+
 }
