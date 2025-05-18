@@ -7,7 +7,7 @@ import (
 	"github.com/gofrs/uuid/v5"
 	"github.com/heroiclabs/nakama-common/api"
 	"github.com/heroiclabs/nakama-common/rtapi"
-	"github.com/martbul/inspo-common/runtime"
+	"github.com/heroiclabs/nakama-common/runtime"
 	"go.uber.org/atomic"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -23,7 +23,7 @@ const (
 type Session interface {
 	Logger() *zap.Logger
 	ID() uuid.UUID
-	UserId() uuid.UUID
+	UserID() uuid.UUID
 	Vars() map[string]string
 	ClientIP() string
 	ClientPort() string
