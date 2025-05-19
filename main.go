@@ -6,13 +6,19 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
+	"path/filepath"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
 
+	"github.com/gofrs/uuid/v5"
 	"github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/jackc/pgx/v5/stdlib" // Blank import to register SQL driver
+	"github.com/martbul/console"
 	"github.com/martbul/migrate"
+	"github.com/martbul/se"
 	"github.com/martbul/server"
 	"github.com/martbul/social"
 	"go.uber.org/zap"
@@ -20,7 +26,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-const cookieFliemane = ".cookie"
+const cookieFilename = ".cookie"
 
 var (
 	version  string = "1.0.0"
@@ -189,5 +195,76 @@ func main() {
 	partyRegistry := server.NewLocalPartyRegistry(logger, config, matchmaker, tracker, streamManager, router, config.GetName())
 	tracker.SetPartyJoinListener(partyRegistry.Join)
 	tracker.SetPartyLeaveListener(partyRegistry.Leave)
+
+	storageIndex.RegisterFilters(runtime)
+	go func() {
+		if err = storageIndex.Load(ctx); err != nil {
+			logger.Error("Failed to load storage index entries from database", zap.Error(err))
+		}
+	}()
+
+	leaderboardScheduler.Start(runtime)
+	googleRefundScheduler.Start(runtime)
+
+	pipeline := server.NewPipeline(logger, config, db, jsonpbMarshaler, jsonpbUnmarshaler, sessionRegistry, statusRegistry, matchRegistry, partyRegistry, matchmaker, tracker, router, runtime)
+	statusHandler := server.NewLocalStatusHandler(logger, sessionRegistry, matchRegistry, tracker, metrics, config.GetName())
+
+	telemetryEnabled := len(os.Getenv("NAKAMA_TELEMETRY")) < 1
+	console.UIFS.Nt = !telemetryEnabled
+	cookie := newOrLoadCookie(telemetryEnabled, config)
+
+	apiServer := server.StartApiServer(logger, startupLogger, db, jsonpbMarshaler, jsonpbUnmarshaler, config, version, socialClient, storageIndex, leaderboardCache, leaderboardRankCache, sessionRegistry, sessionCache, statusRegistry, matchRegistry, matchmaker, tracker, router, streamManager, metrics, pipeline, runtime)
+	consoleServer := server.StartConsoleServer(logger, startupLogger, db, config, tracker, router, streamManager, metrics, sessionRegistry, sessionCache, consoleSessionCache, loginAttemptCache, statusRegistry, statusHandler, runtimeInfo, matchRegistry, configWarnings, semver, leaderboardCache, leaderboardRankCache, leaderboardScheduler, storageIndex, apiServer, runtime, cookie)
+
+	if telemetryEnabled {
+		const telemetryKey = "YU1bIKUhjQA9WC0O6ouIRIWTaPlJ5kFs"
+		_ = se.Start(telemetryKey, cookie, semver, "nakama")
+		defer func() {
+			_ = se.End(telemetryKey, cookie)
+		}()
+	}
+
+	// Respect OS stop signals.
+	c := make(chan os.Signal, 2)
+	signal.Notify(c, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+
+	startupLogger.Info("Startup done")
+
+	// Wait for a termination signal.
+	<-c
+
+	server.HandleShutdown(ctx, logger, matchRegistry, config.GetShutdownGraceSec(), runtime.Shutdown(), c)
+
+	// Signal cancellation to the global runtime context.
+	ctxCancelFn()
+
+	// Gracefully stop remaining server components.
+	apiServer.Stop()
+	consoleServer.Stop()
+	matchmaker.Stop()
+	leaderboardScheduler.Stop()
+	googleRefundScheduler.Stop()
+	tracker.Stop()
+	statusRegistry.Stop()
+	sessionCache.Stop()
+	sessionRegistry.Stop()
+	metrics.Stop(logger)
+	loginAttemptCache.Stop()
+
+	startupLogger.Info("Shutdown complete")
+}
+
+func newOrLoadCookie(enabled bool, config server.Config) string {
+	if !enabled {
+		return ""
+	}
+	filePath := filepath.FromSlash(config.GetDataDir() + "/" + cookieFilename)
+	b, err := os.ReadFile(filePath)
+	cookie := uuid.FromBytesOrNil(b)
+	if err != nil || cookie == uuid.Nil {
+		cookie = uuid.Must(uuid.NewV4())
+		_ = os.WriteFile(filePath, cookie.Bytes(), 0o644)
+	}
+	return cookie.String()
 
 }
