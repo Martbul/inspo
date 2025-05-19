@@ -5,6 +5,7 @@ import (
 	"math"
 	"runtime"
 
+	"github.com/martbul/console"
 	"go.uber.org/zap"
 )
 
