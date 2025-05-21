@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid/v5"
-	"github.com/heroiclabs/nakama-common/api"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/martbul/inspo-common/api"
 	"github.com/martbul/social"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"

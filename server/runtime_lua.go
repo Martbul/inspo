@@ -14,13 +14,13 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/heroiclabs/nakama-common/runtime"
+	"github.com/martbul/inspo-common/api"
+	"github.com/martbul/inspo-common/rtapi"
+	"github.com/martbul/inspo-common/runtime"
 	lua "github.com/martbul/internal/gopher-lua"
+	"github.com/martbul/social"
 
 	"github.com/gofrs/uuid/v5"
-	"github.com/heroiclabs/nakama-common/api"
-	"github.com/heroiclabs/nakama-common/rtapi"
-	"github.com/heroiclabs/nakama/v3/social"
 	"go.uber.org/atomic"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"

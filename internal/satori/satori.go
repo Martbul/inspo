@@ -17,7 +17,7 @@ import (
 	"unique"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/heroiclabs/nakama-common/runtime"
+	"github.com/martbul/inspo-common/runtime"
 	"github.com/martbul/internal/ctxkeys"
 	"go.uber.org/zap"
 )

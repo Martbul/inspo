@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/heroiclabs/nakama-common/api"
-	"github.com/heroiclabs/nakama-common/runtime"
 	"github.com/jackc/pgx/v5"
+	"github.com/martbul/inspo-common/api"
+	"github.com/martbul/inspo-common/runtime"
 	"go.uber.org/zap"
 )
 

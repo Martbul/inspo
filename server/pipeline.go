@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/heroiclabs/nakama-common/rtapi"
+	"github.com/martbul/inspo-common/rtapi"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/encoding/protojson"
 )
