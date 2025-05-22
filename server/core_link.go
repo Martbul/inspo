@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/gofrs/uuid/v5"
-	"github.com/martbul/social"
+	"github.com/martbul/inspo/social"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"go.uber.org/zap"

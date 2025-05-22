@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid/v5"
-	"github.com/martbul/iap"
-	"github.com/martbul/inspo-common/api"
+	"github.com/martbul/inspo/iap"
+	"github.com/martbul/inspo/inspo-common/api"
 	"go.uber.org/atomic"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"

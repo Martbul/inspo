@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid/v5"
-	"github.com/martbul/inspo-common/api"
-	"github.com/martbul/internal/skiplist"
+	"github.com/martbul/inspo/inspo-common/api"
+	"github.com/martbul/inspo/internal/skiplist"
 	"go.uber.org/zap"
 )
 

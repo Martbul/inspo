@@ -20,7 +20,7 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	grpcgw "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/martbul/console"
+	"github.com/martbul/inspo/console"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

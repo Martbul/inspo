@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	lua "github.com/martbul/internal/gopher-lua"
+	lua "github.com/martbul/inspo/internal/gopher-lua"
 )
 
 var startedAt time.Time

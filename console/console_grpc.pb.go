@@ -26,7 +26,7 @@ package console
 import (
 	context "context"
 
-	"github.com/martbul/inspo-common/api"
+	"github.com/martbul/inspo/inspo-common/api"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"

@@ -3,8 +3,8 @@ package server
 import (
 	"strings"
 
-	"github.com/martbul/inspo-common/api"
-	"github.com/martbul/inspo-common/rtapi"
+	"github.com/martbul/inspo/inspo-common/api"
+	"github.com/martbul/inspo/inspo-common/rtapi"
 	"go.uber.org/zap"
 )
 

@@ -5,11 +5,10 @@ import (
 	"sync"
 	"time"
 
-	lua "github.com/martbul/internal/gopher-lua"
+	lua "github.com/martbul/inspo/internal/gopher-lua"
 )
 
 type luaLocalCacheData struct {
-	lua            "github.com/heroiclabs/nakama/v3/internal/gopher-lua"
 	data           lua.LValue
 	expirationTime time.Time
 }

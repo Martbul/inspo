@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	lua "github.com/martbul/internal/gopher-lua"
+	lua "github.com/martbul/inspo/internal/gopher-lua"
 )
 
 const emptyLString lua.LString = lua.LString("")

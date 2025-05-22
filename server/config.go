@@ -11,8 +11,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/martbul/flags"
-	"github.com/martbul/inspo-common/runtime"
+	"github.com/martbul/inspo/flags"
+	"github.com/martbul/inspo/inspo-common/runtime"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"

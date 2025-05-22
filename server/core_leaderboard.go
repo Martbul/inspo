@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/martbul/inspo-common/api"
-	"github.com/martbul/inspo-common/runtime"
-	"github.com/martbul/internal/cronexpr"
+	"github.com/martbul/inspo/inspo-common/api"
+	"github.com/martbul/inspo/inspo-common/runtime"
+	"github.com/martbul/inspo/internal/cronexpr"
 
 	"github.com/gofrs/uuid/v5"
 

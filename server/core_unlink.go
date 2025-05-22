@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/gofrs/uuid/v5"
-	"github.com/martbul/social"
+	"github.com/martbul/inspo/social"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

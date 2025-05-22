@@ -16,7 +16,7 @@ import (
 	"github.com/blugelabs/bluge/index"
 	"github.com/blugelabs/bluge/search"
 	"github.com/gofrs/uuid/v5"
-	"github.com/martbul/inspo-common/api"
+	"github.com/martbul/inspo/inspo-common/api"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"

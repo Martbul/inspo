@@ -94,8 +94,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/martbul/inspo-common/api"
-	"github.com/martbul/inspo-common/rtapi"
+	"github.com/martbul/inspo/inspo-common/api"
+	"github.com/martbul/inspo/inspo-common/rtapi"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

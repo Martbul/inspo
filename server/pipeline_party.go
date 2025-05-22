@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gofrs/uuid/v5"
-	"github.com/martbul/inspo-common/rtapi"
+	"github.com/martbul/inspo/inspo-common/rtapi"
 	"go.uber.org/zap"
 )
 

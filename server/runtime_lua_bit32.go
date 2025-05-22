@@ -4,7 +4,7 @@ import (
 	"math"
 	"math/bits"
 
-	lua "github.com/martbul/internal/gopher-lua"
+	lua "github.com/martbul/inspo/internal/gopher-lua"
 )
 
 var (

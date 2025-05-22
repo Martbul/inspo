@@ -14,9 +14,9 @@ import (
 
 	"github.com/gofrs/uuid/v5"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/martbul/inspo-common/api"
-	"github.com/martbul/inspo-common/rtapi"
-	"github.com/martbul/inspo-common/runtime"
+	"github.com/martbul/inspo/inspo-common/api"
+	"github.com/martbul/inspo/inspo-common/rtapi"
+	"github.com/martbul/inspo/inspo-common/runtime"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"

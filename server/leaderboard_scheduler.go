@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/martbul/inspo-common/api"
+	"github.com/martbul/inspo/inspo-common/api"
 	"go.uber.org/atomic"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/timestamppb"

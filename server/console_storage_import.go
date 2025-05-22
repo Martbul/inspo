@@ -14,8 +14,8 @@ import (
 	"strings"
 
 	"github.com/gofrs/uuid/v5"
-	"github.com/martbul/console"
-	"github.com/martbul/inspo-common/api"
+	"github.com/martbul/inspo/console"
+	"github.com/martbul/inspo/inspo-common/api"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )

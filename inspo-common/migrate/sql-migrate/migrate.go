@@ -16,7 +16,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
-	"github.com/martbul/inspo-common/migrate/sql-migrate/sqlparse"
+	"github.com/martbul/inspo/inspo-common/migrate/sql-migrate/sqlparse"
 )
 
 type MigrationDirection int

@@ -15,9 +15,9 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid/v5"
-	"github.com/martbul/inspo-common/api"
-	"github.com/martbul/inspo-common/rtapi"
-	"github.com/martbul/inspo-common/runtime"
+	"github.com/martbul/inspo/inspo-common/api"
+	"github.com/martbul/inspo/inspo-common/rtapi"
+	"github.com/martbul/inspo/inspo-common/runtime"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"

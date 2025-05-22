@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"strings"
 
-	nkruntime "github.com/martbul/inspo-common/runtime"
+	nkruntime "github.com/martbul/inspo/inspo-common/runtime"
 	"go.uber.org/zap"
 )
 

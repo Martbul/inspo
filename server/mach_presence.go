@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	"github.com/gofrs/uuid/v5"
-	"github.com/martbul/inspo-common/runtime"
+	"github.com/martbul/inspo/inspo-common/runtime"
 	"go.uber.org/atomic"
 )
 

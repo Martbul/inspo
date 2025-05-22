@@ -6,7 +6,7 @@ package parse
 import (
 	__yyfmt__ "fmt"
 
-	"github.com/martbul/internal/gopher-lua/ast"
+	"github.com/martbul/inspo/internal/gopher-lua/ast"
 )
 
 //line parser.go.y:2

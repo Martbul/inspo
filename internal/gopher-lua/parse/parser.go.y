@@ -1,9 +1,6 @@
 %{
 package parse
 
-import (
-  "github.com/heroiclabs/nakama/v3/internal/gopher-lua/ast"
-)
 %}
 %type<stmts> chunk
 %type<stmts> chunk1

@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/martbul/inspo-common/runtime"
+	"github.com/martbul/inspo/inspo-common/runtime"
 	"go.uber.org/zap"
 )
 

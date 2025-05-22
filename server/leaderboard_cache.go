@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/martbul/internal/cronexpr"
+	"github.com/martbul/inspo/internal/cronexpr"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"go.uber.org/zap"

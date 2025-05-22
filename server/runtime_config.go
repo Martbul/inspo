@@ -1,6 +1,6 @@
 package server
 
-import "github.com/martbul/inspo-common/runtime"
+import "github.com/martbul/inspo/inspo-common/runtime"
 
 type RuntimeConfigClone struct {
 	Name          string

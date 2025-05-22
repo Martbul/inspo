@@ -27,7 +27,7 @@ import (
 	reflect "reflect"
 
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	"github.com/martbul/inspo-common/api"
+	"github.com/martbul/inspo/inspo-common/api"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"

@@ -5,8 +5,8 @@ import (
 	"sync"
 
 	"github.com/gofrs/uuid/v5"
-	"github.com/martbul/inspo-common/api"
-	"github.com/martbul/inspo-common/rtapi"
+	"github.com/martbul/inspo/inspo-common/api"
+	"github.com/martbul/inspo/inspo-common/rtapi"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"

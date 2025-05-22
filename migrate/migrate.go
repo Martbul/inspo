@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
-	sqlmigrate "github.com/martbul/inspo-common/migrate/sql-migrate"
-	"github.com/martbul/server"
+	sqlmigrate "github.com/martbul/inspo/inspo-common/migrate/sql-migrate"
+	"github.com/martbul/inspo/server"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

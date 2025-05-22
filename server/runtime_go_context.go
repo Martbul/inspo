@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	"github.com/heroiclabs/nakama-common/runtime"
+	"github.com/martbul/inspo/inspo-common/runtime"
 )
 
 // ignore warnings about strings being used as ctx keys

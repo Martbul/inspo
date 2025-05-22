@@ -6,14 +6,15 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"github.com/golang-jwt/jwt/v5"
 	"net/http"
 	"strings"
 	"time"
 	"unicode"
 
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/martbul/inspo/console"
+
 	"github.com/gofrs/uuid/v5"
-	"github.com/heroiclabs/nakama/v3/console"
 	"github.com/jackc/pgx/v5/pgconn"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"

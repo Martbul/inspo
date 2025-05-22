@@ -11,9 +11,9 @@ import (
 	"github.com/blugelabs/bluge"
 	"github.com/gofrs/uuid/v5"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/martbul/inspo-common/api"
-	"github.com/martbul/inspo-common/rtapi"
-	"github.com/martbul/inspo-common/runtime"
+	"github.com/martbul/inspo/inspo-common/api"
+	"github.com/martbul/inspo/inspo-common/rtapi"
+	"github.com/martbul/inspo/inspo-common/runtime"
 	"go.uber.org/atomic"
 	"go.uber.org/zap"
 )

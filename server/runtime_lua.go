@@ -14,11 +14,11 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/martbul/inspo-common/api"
-	"github.com/martbul/inspo-common/rtapi"
-	"github.com/martbul/inspo-common/runtime"
-	lua "github.com/martbul/internal/gopher-lua"
-	"github.com/martbul/social"
+	"github.com/martbul/inspo/inspo-common/api"
+	"github.com/martbul/inspo/inspo-common/rtapi"
+	"github.com/martbul/inspo/inspo-common/runtime"
+	lua "github.com/martbul/inspo/internal/gopher-lua"
+	"github.com/martbul/inspo/social"
 
 	"github.com/gofrs/uuid/v5"
 	"go.uber.org/atomic"
