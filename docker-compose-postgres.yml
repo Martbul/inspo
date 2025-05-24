@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:16.8-alpine
+    environment:
+      - POSTGRES_DB=inspo
+      - POSTGRES_PASSWORD=localdb
+    volumes:
+      - data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "inspo"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  inspo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "7349:7349"
+      - "7350:7350"
+      - "7351:7351"
+    volumes:
+      - .:/inspo/data
+    entrypoint:
+      - "/bin/sh"
+      - "-ecx"
+      - >
+          /inspo/inspo migrate up --database.address postgres:localdb@postgres:5432/inspo &&
+          exec /inspo/inspo --name nakama1 --database.address postgres:localdb@postgres:5432/inspo --logger.level DEBUG
+    healthcheck:
+      test: ["CMD", "/inspo/inspo", "healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  data:

@@ -74,11 +74,8 @@ type Config interface {
 	GetRuntimeConfig() (runtime.Config, error)
 }
 
+// INFO: Parses CLI arguments, Reads configuration files (YAML), Overrides config with command-line flags, Sets up environment variables, Parses Google Auth credentials if provided
 func ParseArgs(logger *zap.Logger, args []string) Config {
-	for _, v := range args {
-
-		logger.Debug(v)
-	}
 	configFilePath := NewConfig(logger)
 	configFileFlagSet := flag.NewFlagSet("inspo", flag.ExitOnError)
 
@@ -98,8 +95,9 @@ func ParseArgs(logger *zap.Logger, args []string) Config {
 	// Parse config file if path is set.
 	mainConfig := NewConfig(logger)
 	runtimeEnvironment := mainConfig.GetRuntime().Environment
-
+	fmt.Println(runtimeEnvironment)
 	for _, cfg := range configFilePath.Config {
+		fmt.Println("cfg", cfg)
 		data, err := os.ReadFile(cfg)
 
 		if err != nil {
@@ -119,7 +117,7 @@ func ParseArgs(logger *zap.Logger, args []string) Config {
 	mainConfig.Config = configFilePath.Config
 
 	// Override config with those passed from command-line.
-	mainFlagSet := flag.NewFlagSet("nakama", flag.ExitOnError)
+	mainFlagSet := flag.NewFlagSet("inspo", flag.ExitOnError)
 	mainFlagMaker := flags.NewFlagMakerFlagSet(&flags.FlagMakingOptions{
 		UseLowerCase: true,
 		Flatten:      false,
@@ -1520,6 +1518,7 @@ func ValidateConfig(logger *zap.Logger, c Config) map[string]string {
 
 	configWarnings := make(map[string]string, 8)
 
+	logger.Debug(c.GetConsole().Username)
 	// Log warnings for insecure default parameter values.
 	if c.GetConsole().Username == "admin" {
 		logger.Warn("WARNING: insecure default parameter value, change this for production!", zap.String("param", "console.username"))

@@ -47,14 +47,19 @@ var (
 func main() {
 	defer os.Exit(0)
 
+	fmt.Println("starting the project!!!!")
 	semver := fmt.Sprintf("%s+%s", version, commitID)
 
+	//INFO: Setting maximum time for a request of a 1.5 sec(the client will "give up after 1.5sec")
 	http.DefaultClient.Timeout = 1500 * time.Millisecond
 
 	tmpLogger := server.NewJSONLogger(os.Stdout, zapcore.InfoLevel, server.JSONFormat)
 
 	ctx, ctxCancelFn := context.WithCancel(context.Background())
 
+	fmt.Println("osArgs", os.Args[0])
+	fmt.Println("osArgsLen", len(os.Args))
+	//INFO: os.Args[0] is always the name or path of the running executable.
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
 		case "version":
@@ -121,6 +126,7 @@ func main() {
 	}
 
 	config := server.ParseArgs(tmpLogger, os.Args)
+	fmt.Println(config.GetConsole().Username)
 	logger, startupLogger := server.SetupLogging(tmpLogger, config)
 	configWarnings := server.ValidateConfig(logger, config)
 
@@ -130,6 +136,7 @@ func main() {
 
 	redactedAddresses := make([]string, 0, 1)
 	for _, address := range config.GetDatabase().Addresses {
+		fmt.Println(address)
 		rawURL := fmt.Sprintf("postgres://%s", address)
 		parsedURL, err := url.Parse(rawURL)
 		if err != nil {
@@ -139,7 +146,7 @@ func main() {
 		redactedAddresses = append(redactedAddresses, strings.TrimPrefix(parsedURL.Redacted(), "postgres://"))
 	}
 	startupLogger.Info("Database connections", zap.Strings("dsns", redactedAddresses))
-
+	fmt.Println("here")
 	db := server.DbConnect(ctx, startupLogger, config, false)
 
 	// Check migration status and fail fast if the schema has diverged.

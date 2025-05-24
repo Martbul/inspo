@@ -31,6 +31,7 @@ func DbConnect(ctx context.Context, logger *zap.Logger, config Config, create bo
 		rawURL = fmt.Sprintf("postgres://%s", rawURL)
 	}
 	parsedURL, err := url.Parse(rawURL)
+	fmt.Println(parsedURL)
 	if err != nil {
 		logger.Fatal("Bad database connection URL", zap.Error(err))
 	}
@@ -47,7 +48,7 @@ func DbConnect(ctx context.Context, logger *zap.Logger, config Config, create bo
 	if len(parsedURL.User.Username()) < 1 {
 		parsedURL.User = url.User("root")
 	}
-	dbName := "nakama"
+	dbName := "inspo"
 
 	if len(parsedURL.Path) > 0 {
 		dbName = parsedURL.Path[1:]
