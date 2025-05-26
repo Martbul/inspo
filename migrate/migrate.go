@@ -3,6 +3,7 @@ package migrate
 import (
 	"context"
 	"embed"
+	"fmt"
 	"math"
 	"os"
 	"strings"
@@ -37,6 +38,7 @@ type migrationService struct {
 }
 
 func Check(ctx context.Context, logger *zap.Logger, db *pgx.Conn) {
+	fmt.Println("check migrate")
 	sqlmigrate.SetTable(migrationTable)
 	sqlmigrate.SetIgnoreUnknown(true)
 
@@ -70,7 +72,7 @@ func RunCmd(ctx context.Context, tmpLogger *zap.Logger, db *pgx.Conn, cmd string
 	if cmd == "" {
 		tmpLogger.Fatal("Migrate requires a subcommand. Available commands are: 'up', 'down', 'redo', 'status'.")
 	}
-
+	fmt.Println("cmd", cmd)
 	sqlmigrate.SetTable(migrationTable)
 	sqlmigrate.SetIgnoreUnknown(true)
 	ms := &migrationService{

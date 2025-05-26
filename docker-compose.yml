@@ -1,0 +1,76 @@
+
+services:
+  cockroachdb:
+    image: cockroachdb/cockroach:latest-v24.1
+    command: start-single-node --insecure --store=attrs=ssd,path=/var/lib/cockroach/
+    restart: "no"
+    volumes:
+      - data:/var/lib/cockroach
+    expose:
+      - "8080"
+      - "26257"
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health?ready=1"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  inspo:
+    image: my-inspo:dev
+    build:
+      context: .
+    entrypoint:
+      - "/bin/sh"
+      - "-c"
+      - |
+        echo "=== Container contents ===" &&
+        ls -la / &&
+        echo "=== /inspo directory ===" &&
+        ls -la /inspo/ &&
+        echo "=== Binary info ===" &&
+        file /inspo/inspo &&
+        echo "=== Trying to run binary ===" &&
+        /inspo/inspo --help
+    depends_on:
+      cockroachdb:
+        condition: service_healthy
+      prometheus:
+        condition: service_started
+    volumes:
+      - ./:/inspo/data
+    ports:
+      - "7349:7349"
+      - "7350:7350"
+      - "7351:7351"
+
+  prometheus:
+    image: prom/prometheus
+    entrypoint: /bin/sh -c
+    command: |
+      sh -s <<EOF
+      cat > ./prometheus.yml <<EON
+      global:
+        scrape_interval:     15s
+        evaluation_interval: 15s
+
+      scrape_configs:
+        - job_name: prometheus
+          static_configs:
+            - targets: ['localhost:9090']
+
+        - job_name: inspo
+          metrics_path: /
+          static_configs:
+            - targets: ['inspo:9100']
+      EON
+      prometheus --config.file=./prometheus.yml
+      EOF
+    ports:
+      - "9090:9090"
+
+volumes:
+  data:
+

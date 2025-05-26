@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -63,10 +64,12 @@ func main() {
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
 		case "version":
+			fmt.Println("case version")
 			fmt.Println(semver)
 			return
 
 		case "migrate":
+			fmt.Println("case migrate")
 			config := server.ParseArgs(tmpLogger, os.Args[2:])
 			server.ValideateConfigDatabase(tmpLogger, config)
 			db := server.DbConnect(ctx, tmpLogger, config, true)
@@ -89,26 +92,25 @@ func main() {
 			conn.Close()
 			return
 
-		//case "check":
-		// Parse any command line args to look up runtime path.
-		//	config := server.NewConfig(tmpLogger)
-		//	var runtimePath string
-		//	flags := flag.NewFlagSet("check", flag.ExitOnError)
-		//	flags.StringVar(&runtimePath, "runtime.path", filepath.Join(config.GetDataDir(), "modules"), "Path for the server to scan for lua and Go library files")
-		//	if err := flags.Parse(os.Args[2:]); err != nil {
+		case "check":
+			// Parse any command line args to look up runtime path.
+			// Use full config structure even if not all of its options are available in this command.
+			config := server.NewConfig(tmpLogger)
+			var runtimePath string
+			flags := flag.NewFlagSet("check", flag.ExitOnError)
+			flags.StringVar(&runtimePath, "runtime.path", filepath.Join(config.GetDataDir(), "modules"), "Path for the server to scan for Lua and Go library files.")
+			if err := flags.Parse(os.Args[2:]); err != nil {
+				tmpLogger.Fatal("Could not parse check flags.")
+			}
+			config.GetRuntime().Path = runtimePath
 
-		//		tmpLogger.Fatal("Could not parse check flags.")
-		//	}
-
-		//	config.GetRuntime().Path = runtimePath
-		//
-		//			if err := server.CheckRuntime(tmpLogger, config, version); err != nil {
-		//				// Errors are already logged in the function above.
-		//				os.Exit(1)
-		//			}
-		//			return
-
+			if err := server.CheckRuntime(tmpLogger, config, version); err != nil {
+				// Errors are already logged in the function above.
+				os.Exit(1)
+			}
+			return
 		case "healthcheck":
+			fmt.Println("case healtcheck")
 			port := "7350"
 			if len(os.Args) > 2 {
 				port = os.Args[2]
@@ -140,24 +142,26 @@ func main() {
 		rawURL := fmt.Sprintf("postgres://%s", address)
 		parsedURL, err := url.Parse(rawURL)
 		if err != nil {
-
 			logger.Fatal("Bad connection URL", zap.Error(err))
 		}
 		redactedAddresses = append(redactedAddresses, strings.TrimPrefix(parsedURL.Redacted(), "postgres://"))
 	}
 	startupLogger.Info("Database connections", zap.Strings("dsns", redactedAddresses))
-	fmt.Println("here")
 	db := server.DbConnect(ctx, startupLogger, config, false)
 
 	// Check migration status and fail fast if the schema has diverged.
 	conn, err := db.Conn(context.Background())
 	if err != nil {
 
+		fmt.Println(err)
 		logger.Fatal("Failed to acquire db conn for migration check", zap.Error(err))
 	}
 
 	if err = conn.Raw(func(driverConn any) error {
+
+		fmt.Println("err2")
 		pgxConn := driverConn.(*stdlib.Conn).Conn()
+		fmt.Println("pgxConn", pgxConn)
 		migrate.Check(ctx, startupLogger, pgxConn)
 		return nil
 	}); err != nil {
@@ -167,6 +171,7 @@ func main() {
 	}
 	conn.Close()
 
+	fmt.Println("here3")
 	// Access to social provider integrations.
 	socialClient := social.NewClient(logger, 5*time.Second, config.GetGoogleAuth().OAuthConfig)
 

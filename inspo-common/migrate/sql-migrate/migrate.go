@@ -221,13 +221,17 @@ func (f FileMigrationSource) FindMigrations() ([]*Migration, error) {
 
 func findMigrations(dir http.FileSystem, root string) ([]*Migration, error) {
 	migrations := make([]*Migration, 0)
-
+	fmt.Println("root", root)
 	file, err := dir.Open(root)
 	if err != nil {
+
+		fmt.Println("rrr", err)
 		return nil, err
 	}
 
 	files, err := file.Readdir(0)
+
+	fmt.Println("files", root)
 	if err != nil {
 		return nil, err
 	}
